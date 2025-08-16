@@ -39,7 +39,6 @@ async function main() {
   // Create graph with sub-agent awareness
   const projectGraph = new Graph({
     name: 'Market Analysis Project',
-    defaultAgentId: coordinator.id,
     subAgentAware: true,
     maxConcurrency: 2
   }, coordinator);
@@ -69,8 +68,26 @@ async function main() {
 
   // Execute the graph with intelligent sub-agent coordination
   const result = await projectGraph.run();
+  
+  // Display results
   console.log('Project completed:', result.success);
-  console.log('Final report:', result.results[reportTask].response);
+  console.log(`Tasks completed: ${result.completedNodes}/${result.completedNodes + result.failedNodes}`);
+  console.log(`Duration: ${result.duration}ms`);
+  
+  // Display task results
+  if (result.results) {
+    console.log('\nTask Results:');
+    for (const [nodeId, nodeResult] of Object.entries(result.results)) {
+      console.log(`\n${nodeId}:`, nodeResult);
+    }
+  }
+  
+  // Get the final report from the last task
+  const finalReport = result.results?.[reportTask];
+  if (finalReport) {
+    console.log('\n=== Final Executive Report ===');
+    console.log(finalReport);
+  }
 }
 
 main().catch(console.error);
